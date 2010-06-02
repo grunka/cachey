@@ -12,14 +12,14 @@ import static org.mockito.Mockito.*;
 public class CacheyTest {
     private CacheyProvider<String, String> provider;
     private Cachey<String, String> target;
-    private CacheyEvictionPolicy evictionPolicy;
+    private CacheyEvictionPolicy policy;
 
     @Before
     public void before() {
         provider = mock(CacheyProvider.class);
-        evictionPolicy = mock(CacheyEvictionPolicy.class);
-        when(evictionPolicy.shouldEvict(any(CacheyElement.class))).thenReturn(false);
-        target = new Cachey<String, String>(provider, evictionPolicy);
+        policy = mock(CacheyEvictionPolicy.class);
+        when(policy.shouldEvict(any(CacheyElement.class))).thenReturn(false);
+        target = new Cachey<String, String>(provider, policy);
     }
 
     @Test
@@ -46,13 +46,26 @@ public class CacheyTest {
 
     @Test
     public void shouldGetFromProviderAgainWhenElementIsEvicted() {
-        when(evictionPolicy.shouldEvict(any(CacheyElement.class))).thenReturn(true);
+        when(policy.shouldEvict(any(CacheyElement.class))).thenReturn(true);
         when(provider.get("hello")).thenReturn("world");
         assertEquals("world", target.get("hello"));
         assertEquals("world", target.get("hello"));
         verify(provider, times(2)).get(any(String.class));
     }
 
-    //TODO tests for eviction on add
-    //TODO tests for read notification
+    @Test
+    public void shouldNotifyPolicyForAllReadsIncludingCached() {
+        target.get("hello");
+        target.get("hello");
+        verify(policy, times(2)).elementRead("hello");
+    }
+
+    @Test
+    public void shouldEvictTheElementThatElementAddedReturns() {
+        when(policy.elementAdded("2")).thenReturn("1");
+        target.get("1");
+        target.get("2");
+        target.get("1");
+        verify(provider, times(2)).get("1");
+    }
 }

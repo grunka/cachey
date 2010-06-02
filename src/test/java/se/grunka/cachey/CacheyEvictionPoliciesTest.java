@@ -106,5 +106,16 @@ public class CacheyEvictionPoliciesTest {
         assertEquals("1", policy.elementAdded("4"));
     }
 
+    @Test
+    public void shouldEvictTheLeastRecentlyUsedElement() {
+        CacheyEvictionPolicy<String, String> policy = CacheyEvictionPolicies.lru(3);
+        assertNull(policy.elementAdded("1"));
+        assertNull(policy.elementAdded("2"));
+        assertNull(policy.elementAdded("3"));
+        policy.elementRead("1");
+        assertEquals("2", policy.elementAdded("4"));
+    }
+
     //TODO tests for usage of add and read of elements for other policies
+    //TODO make all(...) and any(...) work for lru and fifo
 }

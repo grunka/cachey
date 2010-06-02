@@ -1,10 +1,10 @@
 package se.grunka.cachey;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-//TODO lru
 public class CacheyEvictionPolicies {
 
     public static <K, V> CacheyEvictionPolicy<K, V> none() {
@@ -92,6 +92,33 @@ public class CacheyEvictionPolicies {
             }
 
             public K elementAdded(K key) {
+                queue.add(key);
+                if (queue.size() > elements) {
+                    return queue.remove(0);
+                } else {
+                    return null;
+                }
+            }
+        };
+    }
+
+
+    public static <K, V> CacheyEvictionPolicy<K, V> lru(final int elements) {
+        final List<K> queue = new LinkedList<K>();
+        return new CacheyEvictionPolicy<K, V>() {
+            public boolean shouldEvict(CacheyElement<V> element) {
+                return false;
+            }
+
+
+            public void elementRead(K key) {
+                queue.remove(key);
+                queue.add(key);
+            }
+
+
+            public K elementAdded(K key) {
+                queue.remove(key);
                 queue.add(key);
                 if (queue.size() > elements) {
                     return queue.remove(0);

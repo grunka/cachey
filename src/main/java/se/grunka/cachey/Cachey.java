@@ -19,20 +19,17 @@ public class Cachey<K, V> {
     }
 
     public V get(K key) {
+        policy.elementRead(key); //TODO needs a write lock?
+        readLock.lock();
         try {
-            readLock.lock();
-            try {
-                CacheyElement<V> element = getValidElement(key);
-                if (element != null) {
-                    return element.value();
-                }
-            } finally {
-                readLock.unlock();
+            CacheyElement<V> element = getValidElement(key);
+            if (element != null) {
+                return element.value();
             }
-            return updateCache(key);
         } finally {
-            policy.elementRead(key);
+            readLock.unlock();
         }
+        return updateCache(key);
     }
 
     private V updateCache(K key) {
