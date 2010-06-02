@@ -7,7 +7,7 @@ public class CacheySample {
                 return "Value for " + key;
             }
         };
-        CacheyEvictionPolicy<String> policy = CacheyEvictionPolicies.none();
+        CacheyEvictionPolicy<String, String> policy = CacheyEvictionPolicies.none();
         Cachey<String, String> cachey = new Cachey<String, String>(provider, policy);
         String value = cachey.get("key");
         System.out.println(value);

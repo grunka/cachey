@@ -52,4 +52,7 @@ public class CacheyTest {
         assertEquals("world", target.get("hello"));
         verify(provider, times(2)).get(any(String.class));
     }
+
+    //TODO tests for eviction on add
+    //TODO tests for read notification
 }
